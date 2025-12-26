@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewels Infinity - Game Puzzle Modern</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        header {
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #fbbf24, #f472b6, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            margin-bottom: 5px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .info-card {
+            background: rgba(51, 65, 85, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .info-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #fbbf24;
+        }
+        
+        .info-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .jewel-preview {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .jewel-sample {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+        }
+        
+        .game-board-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #gameBoard {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-gap: 10px;
+            margin: 0 auto;
+            width: fit-content;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .jewel {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .jewel:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        
+        .jewel.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            z-index: 10;
+        }
+        
+        .jewel.exploding {
+            animation: explode 0.5s forwards;
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transform: translateY(-3px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-3px);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: translateY(-3px);
+        }
+        
+        .instructions {
+            background: rgba(51, 65, 85, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .instructions h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions ul {
+            list-style-position: inside;
+            color: #cbd5e1;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .level-up-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            padding: 40px 60px;
+            border-radius: 20px;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        
+        .level-up-notification.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .sound-control {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sound-control i {
+            font-size: 1.5rem;
+            color: #fbbf24;
+        }
+        
+        @media (max-width: 768px) {
+            .jewel {
+                width: 45px;
+                height: 45px;
+                font-size: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .info-card {
+                min-width: 150px;
+                padding: 15px;
+            }
+            
+            .info-value {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .jewel {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+            
+            #gameBoard {
+                grid-gap: 6px;
+            }
+            
+            .game-board-container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-gem"></i> Jewels Infinity</h1>
+            <p class="subtitle">Hancurkan 3+ jewel berdekatan untuk naik level tak terhingga!</p>
+        </header>
+        
+        <div class="game-info">
+            <div class="info-card">
+                <h2>Level</h2>
+                <div class="info-value" id="level">1</div>
+                <div class="jewel-preview" id="jewelPreview">
+                    <!-- Jewel preview akan diisi oleh JavaScript -->
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h2>Score</h2>
+                <div class="info-value" id="score">0</div>
+                <p>Target: <span id="targetScore">1000</span></p>
+            </div>
+            
+            <div class="info-card">
+                <h2>Jewels Hancur</h2>
+                <div class="info-value" id="destroyed">0</div>
+                <p>Combo: <span id="combo">1x</span></p>
+            </div>
+        </div>
+        
+        <div class="game-board-container">
+            <div class="sound-control" id="soundControl">
+                <i class="fas fa-volume-up"></i>
+            </div>
+            <div id="gameBoard">
+                <!-- Game board akan diisi oleh JavaScript -->
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" id="hintBtn">
+                <i class="fas fa-lightbulb"></i> Hint
+            </button>
+            <button class="btn btn-success" id="newGameBtn">
+                <i class="fas fa-redo"></i> Game Baru
+            </button>
+            <button class="btn btn-warning" id="nextLevelBtn">
+                <i class="fas fa-arrow-up"></i> Level Selanjutnya
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Cara Bermain</h3>
+            <ul>
+                <li>Klik 2 jewel yang berdekatan untuk menukar posisinya</li>
+                <li>Jika 3 atau lebih jewel sejenis berdekatan (vertikal/horizontal), mereka akan hancur</li>
+                <li>Setiap jewel yang hancur akan memberikan poin</li>
+                <li>Capai target score untuk naik ke level berikutnya</li>
+                <li>Setiap level baru akan menampilkan jenis jewel yang berbeda</li>
+                <li>Game memiliki level tak terhingga dengan tingkat kesulitan meningkat</li>
+            </ul>
+        </div>
+        
+        <div class="level-up-notification" id="levelUpNotification">
+            Level Up!
+        </div>
+    </div>
+    
+    <!-- Audio elements -->
+    <audio id="swapSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="matchSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="levelUpSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-trumpet-2018.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="hintSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-magic-sparkles-sound-3090.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Game variables
+        let gameBoard = [];
+        let selectedJewel = null;
+        let score = 0;
+        let level = 1;
+        let destroyedCount = 0;
+        let targetScore = 1000;
+        let combo = 1;
+        let jewelTypes = [];
+        let soundsEnabled = true;
+        let isProcessing = false;
+        
+        // Game constants
+        const BOARD_SIZE = 8;
+        const BASE_TARGET_SCORE = 1000;
+        const JEWEL_SHAPES = ['fas fa-gem', 'fas fa-star', 'fas fa-heart', 'fas fa-circle', 'fas fa-square', 'fas fa-diamond', 'fas fa-certificate', 'fas fa-bolt'];
+        const JEWEL_COLORS = ['#f87171', '#60a5fa', '#34d399', '#fbbf24', '#c084fc', '#fb923c', '#38bdf8', '#a78bfa'];
+        
+        // DOM elements
+        const gameBoardElement = document.getElementById('gameBoard');
+        const levelElement = document.getElementById('level');
+        const scoreElement = document.getElementById('score');
+        const targetScoreElement = document.getElementById('targetScore');
+        const destroyedElement = document.getElementById('destroyed');
+        const comboElement = document.getElementById('combo');
+        const jewelPreviewElement = document.getElementById('jewelPreview');
+        const levelUpNotification = document.getElementById('levelUpNotification');
+        const soundControl = document.getElementById('soundControl');
+        
+        // Audio elements
+        const swapSound = document.getElementById('swapSound');
+        const matchSound = document.getElementById('matchSound');
+        const levelUpSound = document.getElementById('levelUpSound');
+        const hintSound = document.getElementById('hintSound');
+        
+        // Initialize the game
+        function initGame() {
+            score = 0;
+            level = 1;
+            destroyedCount = 0;
+            combo = 1;
+            targetScore = BASE_TARGET_SCORE;
+            
+            updateUI();
+            generateJewelTypesForLevel();
+            createBoard();
+            renderBoard();
+            updateJewelPreview();
+            
+            // Play a sound if enabled
+            playSound(levelUpSound);
+        }
+        
+        // Generate jewel types for the current level
+        function generateJewelTypesForLevel() {
+            jewelTypes = [];
+            // Each level adds one more jewel type, up to a maximum of 8
+            const typesCount = Math.min(3 + Math.floor(level / 3), 8);
+            
+            for (let i = 0; i < typesCount; i++) {
+                jewelTypes.push({
+                    shape: JEWEL_SHAPES[i],
+                    color: JEWEL_COLORS[i]
+                });
+            }
+        }
+        
+        // Create the game board
+        function createBoard() {
+            gameBoard = [];
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                gameBoard[row] = [];
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    gameBoard[row][col] = getRandomJewelType();
+                }
+            }
+            
+            // Ensure no initial matches
+            while (findMatches().length > 0) {
+                for (let match of findMatches()) {
+                    gameBoard[match.row][match.col] = getRandomJewelType();
+                }
+            }
+        }
+        
+        // Get a random jewel type
+        function getRandomJewelType() {
+            return Math.floor(Math.random() * jewelTypes.length);
+        }
+        
+        // Render the game board
+        function renderBoard() {
+            gameBoardElement.innerHTML = '';
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    const jewel = document.createElement('div');
+                    jewel.className = 'jewel';
+                    jewel.dataset.row = row;
+                    jewel.dataset.col = col;
+                    
+                    const jewelType = jewelTypes[gameBoard[row][col]];
+                    jewel.style.background = `linear-gradient(135deg, ${jewelType.color} 0%, ${darkenColor(jewelType.color, 30)} 100%)`;
+                    jewel.innerHTML = `<i class="${jewelType.shape}"></i>`;
+                    
+                    jewel.addEventListener('click', () => handleJewelClick(row, col));
+                    
+                    gameBoardElement.appendChild(jewel);
+                }
+            }
+        }
+        
+        // Handle jewel click
+        function handleJewelClick(row, col) {
+            if (isProcessing) return;
+            
+            if (!selectedJewel) {
+                // First jewel selected
+                selectedJewel = { row, col };
+                highlightJewel(row, col, true);
+                playSound(swapSound);
+            } else {
+                // Second jewel selected
+                const firstJewel = selectedJewel;
+                
+                // Check if jewels are adjacent
+                if (areAdjacent(firstJewel.row, firstJewel.col, row, col)) {
+                    // Swap jewels
+                    swapJewels(firstJewel.row, firstJewel.col, row, col);
+                    
+                    // Check for matches
+                    const matches = findMatches();
+                    
+                    if (matches.length > 0) {
+                        // Valid move
+                        highlightJewel(firstJewel.row, firstJewel.col, false);
+                        processMatches(matches);
+                    } else {
+                        // Invalid move, swap back
+                        swapJewels(firstJewel.row, firstJewel.col, row, col);
+                        highlightJewel(firstJewel.row, firstJewel.col, false);
+                        playSound(swapSound);
+                    }
+                } else {
+                    // Not adjacent, just select the new jewel
+                    highlightJewel(firstJewel.row, firstJewel.col, false);
+                    selectedJewel = { row, col };
+                    highlightJewel(row, col, true);
+                    playSound(swapSound);
+                }
+                
+                selectedJewel = null;
+            }
+        }
+        
+        // Check if two jewels are adjacent
+        function areAdjacent(row1, col1, row2, col2) {
+            const rowDiff = Math.abs(row1 - row2);
+            const colDiff = Math.abs(col1 - col2);
+            
+            return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+        }
+        
+        // Swap two jewels
+        function swapJewels(row1, col1, row2, col2) {
+            const temp = gameBoard[row1][col1];
+            gameBoard[row1][col1] = gameBoard[row2][col2];
+            gameBoard[row2][col2] = temp;
+            
+            renderBoard();
+        }
+        
+        // Highlight a jewel
+        function highlightJewel(row, col, highlight) {
+            const jewelElement = document.querySelector(`.jewel[data-row="${row}"][data-col="${col}"]`);
+            
+            if (highlight) {
+                jewelElement.classList.add('selected');
+            } else {
+                jewelElement.classList.remove('selected');
+            }
+        }
+        
+        // Find all matches on the board
+        function findMatches() {
+            const matches = [];
+            
+            // Check horizontal matches
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE - 2; col++) {
+                    const jewelType = gameBoard[row][col];
+                    
+                    if (jewelType === gameBoard[row][col + 1] && jewelType === gameBoard[row][col + 2]) {
+                        // Found a match of at least 3
+                        let matchLength = 3;
+                        
+                        // Check for longer matches
+                        while (col + matchLength < BOARD_SIZE && gameBoard[row][col + matchLength] === jewelType) {
+                            matchLength++;
+                        }
+                        
+                        // Add all jewels in the match
+                        for (let i = 0; i < matchLength; i++) {
+                            matches.push({ row, col: col + i });
+                        }
+                        
+                        col += matchLength - 1;
+                    }
+                }
+            }
+            
+            // Check vertical matches
+            for (let col = 0; col < BOARD_SIZE; col++) {
+                for (let row = 0; row < BOARD_SIZE - 2; row++) {
+                    const jewelType = gameBoard[row][col];
+                    
+                    if (jewelType === gameBoard[row + 1][col] && jewelType === gameBoard[row + 2][col]) {
+                        // Found a match of at least 3
+                        let matchLength = 3;
+                        
+                        // Check for longer matches
+                        while (row + matchLength < BOARD_SIZE && gameBoard[row + matchLength][col] === jewelType) {
+                            matchLength++;
+                        }
+                        
+                        // Add all jewels in the match
+                        for (let i = 0; i < matchLength; i++) {
+                            matches.push({ row: row + i, col });
+                        }
+                        
+                        row += matchLength - 1;
+                    }
+                }
+            }
+            
+            // Remove duplicates (jewels that are part of both horizontal and vertical matches)
+            const uniqueMatches = [];
+            const matchSet = new Set();
+            
+            for (const match of matches) {
+                const key = `${match.row},${match.col}`;
+                if (!matchSet.has(key)) {
+                    matchSet.add(key);
+                    uniqueMatches.push(match);
+                }
+            }
+            
+            return uniqueMatches;
+        }
+        
+        // Process matches
+        function processMatches(matches) {
+            if (matches.length === 0) return;
+            
+            isProcessing = true;
+            
+            // Calculate score for this match
+            const matchScore = matches.length * 100 * combo;
+            score += matchScore;
+            destroyedCount += matches.length;
+            
+            // Increase combo for next match
+            combo = Math.min(combo + 0.5, 5);
+            
+            // Update UI
+            updateUI();
+            
+            // Play match sound
+            playSound(matchSound);
+            
+            // Show explosion animation for matched jewels
+            for (const match of matches) {
+                const jewelElement = document.querySelector(`.jewel[data-row="${match.row}"][data-col="${match.col}"]`);
+                jewelElement.classList.add('exploding');
+            }
+            
+            // Wait for animation to complete, then remove jewels
+            setTimeout(() => {
+                // Remove matched jewels
+                for (const match of matches) {
+                    gameBoard[match.row][match.col] = -1; // Mark as empty
+                }
+                
+                // Drop jewels from above
+                dropJewels();
+                
+                // Fill empty spaces with new jewels
+                fillEmptySpaces();
+                
+                renderBoard();
+                
+                // Check for new matches (chain reactions)
+                const newMatches = findMatches();
+                
+                if (newMatches.length > 0) {
+                    // Chain reaction!
+                    setTimeout(() => processMatches(newMatches), 500);
+                } else {
+                    // No more matches, reset combo
+                    combo = 1;
+                    isProcessing = false;
+                    
+                    // Check if level is completed
+                    if (score >= targetScore) {
+                        levelUp();
+                    }
+                }
+            }, 500);
+        }
+           // Drop jewels from above
+        function dropJewels() {
+            for (let col = 0; col < BOARD_SIZE; col++) {
+                let emptySpaces = 0;
+                
+                // Count empty spaces from bottom to top
+                for (let row = BOARD_SIZE - 1; row >= 0; row--) {
+                    if (gameBoard[row][col] === -1) {
+                        emptySpaces++;
+                    } else if (emptySpaces > 0) {
+                        // Move jewel down
+                        gameBoard[row + emptySpaces][col] = gameBoard[row][col];
+                        gameBoard[row][col] = -1;
+                    }
+                }
+            }
+        }
+        
+        // Fill empty spaces with new jewels
+        function fillEmptySpaces() {
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    if (gameBoard[row][col] === -1) {
+                        gameBoard[row][col] = getRandomJewelType();
+                    }
+                }
+            }
+        }
+        
+        // Level up
+        function levelUp() {
+            level++;
+            targetScore = BASE_TARGET_SCORE * level;
+            
+            // Show level up notification
+            levelUpNotification.classList.add('show');
+            playSound(levelUpSound);
+            
+            setTimeout(() => {
+                levelUpNotification.classList.remove('show');
+                
+                // Generate new jewel types for the new level
+                generateJewelTypesForLevel();
+                
+                // Create a new board with the new jewel types
+                createBoard();
+                renderBoard();
+                updateJewelPreview();
+                updateUI();
+                
+                isProcessing = false;
+            }, 2000);
+        }
+        
+        // Update UI elements
+        function updateUI() {
+            levelElement.textContent = level;
+            scoreElement.textContent = score;
+            targetScoreElement.textContent = targetScore;
+            destroyedElement.textContent = destroyedCount;
+            comboElement.textContent = combo.toFixed(1) + 'x';
+        }
+        
+        // Update jewel preview
+        function updateJewelPreview() {
+            jewelPreviewElement.innerHTML = '';
+            
+            for (let i = 0; i < jewelTypes.length; i++) {
+                const jewelSample = document.createElement('div');
+                jewelSample.className = 'jewel-sample';
+                jewelSample.style.background = `linear-gradient(135deg, ${jewelTypes[i].color} 0%, ${darkenColor(jewelTypes[i].color, 30)} 100%)`;
+                jewelSample.innerHTML = `<i class="${jewelTypes[i].shape}"></i>`;
+                jewelPreviewElement.appendChild(jewelSample);
+            }
+        }
+        
+        // Darken a color
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+            
+            return "#" + (
+                0x1000000 + 
+                (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + 
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + 
+                (B < 255 ? B < 1 ? 0 : B : 255)
+            ).toString(16).slice(1);
+        }
+        
+        // Play a sound if enabled
+        function playSound(audioElement) {
+            if (soundsEnabled) {
+                audioElement.currentTime = 0;
+                audioElement.play().catch(e => console.log("Audio play failed:", e));
+            }
+        }
+        
+        // Find a hint (a valid move)
+        function findHint() {
+            // Try all possible swaps
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    // Check right neighbor
+                    if (col < BOARD_SIZE - 1) {
+                        swapJewels(row, col, row, col + 1);
+                        if (findMatches().length > 0) {
+                            swapJewels(row, col, row, col + 1); // Swap back
+                            return { row1: row, col1: col, row2: row, col2: col + 1 };
+                        }
+                        swapJewels(row, col, row, col + 1); // Swap back
+                    }
+                    
+                    // Check bottom neighbor
+                    if (row < BOARD_SIZE - 1) {
+                        swapJewels(row, col, row + 1, col);
+                        if (findMatches().length > 0) {
+                            swapJewels(row, col, row + 1, col); // Swap back
+                            return { row1: row, col1: col, row2: row + 1, col2: col };
+                        }
+                        swapJewels(row, col, row + 1, col); // Swap back
+                    }
+                }
+            }
+            
+            return null;
+      }
+          // Show a hint
+        function showHint() {
+            if (isProcessing) return;
+            
+            const hint = findHint();
+            
+            if (hint) {
+                // Highlight the jewels in the hint
+                highlightJewel(hint.row1, hint.col1, true);
+                highlightJewel(hint.row2, hint.col2, true);
+                
+                playSound(hintSound);
+                
+                // Remove highlight after 1.5 seconds
+                setTimeout(() => {
+                    highlightJewel(hint.row1, hint.col1, false);
+                    highlightJewel(hint.row2, hint.col2, false);
+                }, 1500);
+            }
+        }
+        
+        // Force next level
+        function goToNextLevel() {
+            if (isProcessing) return;
+            
+            score = targetScore;
+            levelUp();
+        }
+        
+        // Toggle sound
+        function toggleSound() {
+            soundsEnabled = !soundsEnabled;
+            const soundIcon = soundControl.querySelector('i');
+            
+            if (soundsEnabled) {
+                soundIcon.className = 'fas fa-volume-up';
+                playSound(swapSound);
+            } else {
+                soundIcon.className = 'fas fa-volume-mute';
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('hintBtn').addEventListener('click', showHint);
+        document.getElementById('newGameBtn').addEventListener('click', initGame);
+        document.getElementById('nextLevelBtn').addEventListener('click', goToNextLevel);
+        soundControl.addEventListener('click', toggleSound);
+        
+        // Initialize the game
+        initGame();
+    </script>
+</body>
+</html>
