@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewels Infinity - Game Puzzle Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        header {
+            text-align: center;
+            width: 100%;
+            padding: 25px;
+            border-radius: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6);
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            background: linear-gradient(90deg, #fbbf24, #f472b6, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            margin-bottom: 5px;
+        }
+        
+        .offline-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.9));
+            border-radius: 18px;
+            padding: 25px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+        }
+        
+        .info-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .info-value {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #60a5fa;
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            margin: 10px 0;
+        }
+        
+        .jewel-preview {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .jewel-sample {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+        
+        .jewel-sample:hover {
+            transform: scale(1.2);
+        }
+        
+        .game-board-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #gameBoard {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-gap: 10px;
+            margin: 0 auto;
+            width: fit-content;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .jewel {
+            width: 65px;
+            height: 65px;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .jewel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+            border-radius: 15px;
+        }
+        
+        .jewel:hover {
+            transform: scale(1.08) rotate(5deg);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+        }
+        
+        .jewel.selected {
+            transform: scale(1.15) rotate(0deg);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+            z-index: 10;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.7); }
+            50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.7); }
+        }
+        
+        .jewel.exploding {
+            animation: explode 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            25% { transform: scale(1.4) rotate(45deg); opacity: 0.8; }
+            100% { transform: scale(0) rotate(180deg); opacity: 0; }
+        }
+        
+        .jewel.falling {
+            animation: fall 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 18px 35px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.9));
+            border-radius: 18px;
+            padding: 25px;
+            margin-top: 20px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .instructions h3 {
+            color: #fbbf24;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ul {
+            list-style-position: inside;
+            color: #cbd5e1;
+            line-height: 1.8;
+            padding-left: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 12px;
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .instructions li::before {
+            content: '✨';
+            position: absolute;
+            left: -25px;
+            top: 0;
+        }
+        
+        .level-up-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #8b5cf6, #ec4899, #fbbf24);
+            color: white;
+            padding: 50px 80px;
+            border-radius: 25px;
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 60px rgba(139, 92, 246, 0.7); }
+            to { box-shadow: 0 0 80px rgba(236, 72, 153, 0.9); }
+        }
+        
+        .level-up-notification.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .sound-control {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(51, 65, 85, 0.95);
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .sound-control:hover {
+            transform: scale(1.1);
+            background: rgba(71, 85, 105, 0.95);
+        }
+        
+        .sound-control i {
+            font-size: 1.5rem;
+            color: #fbbf24;
+        }
+        
+        .combo-display {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            background: rgba(251, 191, 36, 0.95);
+            color: #1e293b;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 15px rgba(251, 191, 36, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        .combo-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 10px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .game-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-item {
+            background: rgba(51, 65, 85, 0.7);
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-value {
+            color: #fbbf24;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .jewel {
+                width: 45px;
+                height: 45px;
+                font-size: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .info-card {
+                min-width: 150px;
+                padding: 20px;
+            }
+            
+            .info-value {
+                font-size: 2.2rem;
+            }
+            
+            .level-up-notification {
+                padding: 30px 50px;
+                font-size: 2.5rem;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .jewel {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+            
+            #gameBoard {
+                grid-gap: 6px;
+            }
+            
+            .game-board-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .info-card {
+                min-width: 100%;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 12px 18px;
+                font-size: 0.9rem;
+            }
+            
+            .level-up-notification {
+                padding: 20px 30px;
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* Animasi partikel */
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fbbf24;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-gem"></i> Jewels Infinity</h1>
+            <p class="subtitle">Hancurkan 3+ jewel berdekatan untuk naik level tak terhingga!</p>
+            <div class="offline-badge"><i class="fas fa-wifi-slash"></i> Bisa Dimainkan Offline</div>
+        </header>
+        
+        <div class="game-info">
+            <div class="info-card">
+                <h2><i class="fas fa-chart-line"></i> Level</h2>
+                <div class="info-value" id="level">1</div>
+                <p>Jenis Jewel: <span id="jewelCount">5</span></p>
+                <div class="jewel-preview" id="jewelPreview"></div>
+            </div>
+            
+            <div class="info-card">
+                <h2><i class="fas fa-star"></i> Score</h2>
+                <div class="info-value" id="score">0</div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h2><i class="fas fa-bomb"></i> Hancurkan</h2>
+                <div class="info-value" id="destroyed">0</div>
+                <p>Target: <span id="targetScore">1000</span></p>
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-bolt"></i>
+                        <span>Combo: <span class="stat-value" id="combo">1x</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-fire"></i>
+                        <span>Streak: <span class="stat-value" id="streak">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-board-container">
+            <div class="combo-display" id="comboDisplay">COMBO x1</div>
+            <div class="sound-control" id="soundControl">
+                <i class="fas fa-volume-up"></i>
+            </div>
+            <div id="gameBoard"></div>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Level Progress</span>
+                <span id="levelProgress">0/1000</span>
+              </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="levelProgressFill"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" id="hintBtn">
+                <i class="fas fa-lightbulb"></i> Petunjuk (<span id="hintCount">3</span>)
+            </button>
+            <button class="btn btn-success" id="shuffleBtn">
+                <i class="fas fa-random"></i> Acak
+            </button>
+            <button class="btn btn-warning" id="newGameBtn">
+                <i class="fas fa-redo"></i> Game Baru
+            </button>
+            <button class="btn btn-danger" id="nextLevelBtn">
+                <i class="fas fa-rocket"></i> Skip Level
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Cara Bermain</h3>
+            <ul>
+                <li><strong>Klik 2 jewel yang berdekatan</strong> untuk menukar posisinya</li>
+                <li><strong>3 atau lebih jewel sejenis</strong> yang berdekatan (vertikal/horizontal) akan hancur</li>
+                <li>Setiap jewel yang hancur memberikan poin berdasarkan combo</li>
+                <li>Capai target score untuk naik ke level berikutnya</li>
+                <li>Setiap level baru akan menambah jenis jewel baru dengan bentuk berbeda</li>
+                <li>Game memiliki <strong>level tak terhingga</strong> dengan tingkat kesulitan yang meningkat</li>
+                <li>Gunakan <strong>Petunjuk</strong> untuk bantuan atau <strong>Acak</strong> jika tidak ada gerakan</li>
+            </ul>
+        </div>
+   <div class="level-up-notification" id="levelUpNotification">
+            <div>LEVEL UP!</div>
+            <div style="font-size: 1.5rem; margin-top: 15px;" id="levelUpText">Level 2 Unlocked!</div>
+        </div>
+        
+        <footer>
+            <p>Game Jewels Infinity © 2024 | Dibuat dengan ❤️ untuk dimainkan offline</p>
+            <p style="margin-top: 5px; font-size: 0.8rem;">Simpan halaman ini untuk dimainkan kapan saja tanpa internet!</p>
+        </footer>
+    </div>
+    
+    <!-- Audio elements dengan data URI untuk offline -->
+    <audio id="swapSound" preload="auto">
+        <source src="data:audio/mpeg;base64,//uwxAAAAA" type="audio/mpeg">
+    </audio>
+    <audio id="matchSound" preload="auto">
+        <source src="data:audio/mpeg;base64,//uwxAAAAA" type="audio/mpeg">
+    </audio>
+    <audio id="levelUpSound" preload="auto">
+        <source src="data:audio/mpeg;base64,//uwxAAAAA" type="audio/mpeg">
+    </audio>
+    <audio id="hintSound" preload="auto">
+        <source src="data:audio/mpeg;base64,//uwxAAAAA" type="audio/mpeg">
+    </audio>
+    <audio id="shuffleSound" preload="auto">
+        <source src="data:audio/mpeg;base64,//uwxAAAAA" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // ===============================
+        // VARIABEL GLOBAL & KONSTANTA
+        // ===============================
+        let gameBoard = [];
+        let selectedJewel = null;
+        let score = 0;
+        let level = 1;
+        let destroyedCount = 0;
+        let targetScore = 1000;
+        let combo = 1;
+        let streak = 0;
+        let jewelTypes = [];
+        let soundsEnabled = true;
+        let isProcessing = false;
+        let hintCount = 3;
+        let lastMatchTime = 0;
+        let moveCount = 0;
+        let highScore = localStorage.getItem('jewelsHighScore') || 0;
+        
+        const BOARD_SIZE = 8;
+        const BASE_TARGET_SCORE = 1000;
+        const MAX_COMBO = 10;
+        const JEWEL_SHAPES = [
+            'fas fa-gem', 'fas fa-star', 'fas fa-heart', 'fas fa-circle', 
+            'fas fa-square', 'fas fa-diamond', 'fas fa-certificate', 
+            'fas fa-bolt', 'fas fa-moon', 'fas fa-sun', 'fas fa-cloud', 
+            'fas fa-snowflake'
+        ];
+        const JEWEL_COLORS = [
+            '#f87171', '#60a5fa', '#34d399', '#fbbf24', '#c084fc', 
+            '#fb923c', '#38bdf8', '#a78bfa', '#818cf8', '#f472b6', 
+            '#2dd4bf', '#94a3b8'
+        ];
+        const SHAPE_EMOJIS = ['◆', '★', '♥', '●', '■', '♦', '✪', '⚡', '☾', '☀', '☁', '❄'];
+     // ===============================
+        // INISIALISASI GAME
+        // ===============================
+        function initGame() {
+            score = 0;
+            level = 1;
+            destroyedCount = 0;
+            combo = 1;
+            streak = 0;
+            moveCount = 0;
+            targetScore = BASE_TARGET_SCORE;
+            hintCount = 3;
+            
+            updateUI();
+            generateJewelTypesForLevel();
+            createBoard();
+            renderBoard();
+            updateJewelPreview();
+            
+            // Play welcome sound
+            playSound(levelUpSound);
+            
+            // Update high score display
+            document.getElementById('highScore').textContent = highScore;
+        }
+        
+        function generateJewelTypesForLevel() {
+            jewelTypes = [];
+            // Level 1-3: 4 jenis, Level 4-6: 5 jenis, Level 7+: 6+ jenis
+            const typesCount = Math.min(4 + Math.floor(level / 3), 8);
+            
+            for (let i = 0; i < typesCount; i++) {
+                jewelTypes.push({
+                    shape: JEWEL_SHAPES[i % JEWEL_SHAPES.length],
+                    color: JEWEL_COLORS[i % JEWEL_COLORS.length],
+                    emoji: SHAPE_EMOJIS[i % SHAPE_EMOJIS.length]
+                });
+            }
+        }
+        
+        function createBoard() {
+            gameBoard = [];
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                gameBoard[row] = [];
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    gameBoard[row][col] = getRandomJewelType();
+                }
+            }
+            
+            // Pastikan tidak ada match awal
+            while (findMatches().length > 0) {
+                for (let match of findMatches()) {
+                    gameBoard[match.row][match.col] = getRandomJewelType();
+                }
+            }
+        }
+        
+        function getRandomJewelType() {
+            return Math.floor(Math.random() * jewelTypes.length);
+        }
+  // ===============================
+        // RENDER & UI
+        // ===============================
+        function renderBoard() {
+            gameBoardElement.innerHTML = '';
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    const jewel = document.createElement('div');
+                    jewel.className = 'jewel';
+                    jewel.dataset.row = row;
+                    jewel.dataset.col = col;
+                    
+                    const jewelType = jewelTypes[gameBoard[row][col]];
+                    jewel.style.background = `linear-gradient(135deg, ${jewelType.color} 0%, ${darkenColor(jewelType.color, 30)} 100%)`;
+                    
+                    // Coba gunakan FontAwesome, fallback ke emoji
+                    const icon = document.createElement('i');
+                    icon.className = jewelType.shape;
+                    jewel.appendChild(icon);
+                    
+                    // Tambah fallback text untuk aksesibilitas
+                    jewel.setAttribute('aria-label', `Jewel ${jewelType.shape}`);
+                    
+                    jewel.addEventListener('click', () => handleJewelClick(row, col));
+                    
+                    gameBoardElement.appendChild(jewel);
+                }
+            }
+            
+            // Tambah animasi falling untuk jewel baru
+            setTimeout(() => {
+                const jewels = document.querySelectorAll('.jewel');
+                jewels.forEach((jewel, index) => {
+                    jewel.style.animationDelay = `${(index % BOARD_SIZE) * 0.05}s`;
+                    jewel.classList.add('falling');
+                });
+            }, 100);
+        }
+        
+        function updateUI() {
+            document.getElementById('level').textContent = level;
+            document.getElementById('score').textContent = score.toLocaleString();
+            document.getElementById('targetScore').textContent = targetScore.toLocaleString();
+            document.getElementById('destroyed').textContent = destroyedCount.toLocaleString();
+            document.getElementById('combo').textContent = combo.toFixed(1) + 'x';
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('jewelCount').textContent = jewelTypes.length;
+            document.getElementById('hintCount').textContent = hintCount;
+            
+            // Update progress bars
+            const progressPercent = Math.min((score / targetScore) * 100, 100);
+            document.getElementById('progressPercent').textContent = Math.round(progressPercent) + '%';
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            
+            document.getElementById('levelProgress').textContent = `${score}/${targetScore}`;
+            document.getElementById('levelProgressFill').style.width = progressPercent + '%';
+            
+            // Update high score jika perlu
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('jewelsHighScore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+            }
+        }
+        
+        function updateJewelPreview() {
+            const preview = document.getElementById('jewelPreview');
+            preview.innerHTML = '';
+            
+            jewelTypes.forEach((type, index) => {
+                const sample = document.createElement('div');
+                sample.className = 'jewel-sample';
+                sample.style.background = `linear-gradient(135deg, ${type.color} 0%, ${darkenColor(type.color, 30)} 100%)`;
+                
+                const icon = document.createElement('i');
+                icon.className = type.shape;
+                sample.appendChild(icon);
+                
+                preview.appendChild(sample);
+            });
+        }
+        
+      // ===============================
+        // GAME LOGIC
+        // ===============================
+        function handleJewelClick(row, col) {
+            if (isProcessing) return;
+            
+            if (!selectedJewel) {
+                selectedJewel = { row, col };
+                highlightJewel(row, col, true);
+                playSound(swapSound);
+            } else {
+                const firstJewel = selectedJewel;
+                
+                if (areAdjacent(firstJewel.row, firstJewel.col, row, col)) {
+                    moveCount++;
+                    swapJewels(firstJewel.row, firstJewel.col, row, col);
+                    
+                    const matches = findMatches();
+                    
+                    if (matches.length > 0) {
+                        highlightJewel(firstJewel.row, firstJewel.col, false);
+                        processMatches(matches);
+                    } else {
+                        swapJewels(firstJewel.row, firstJewel.col, row, col);
+                        highlightJewel(firstJewel.row, firstJewel.col, false);
+                        playSound(swapSound);
+                    }
+                } else {
+                    highlightJewel(firstJewel.row, firstJewel.col, false);
+                    selectedJewel = { row, col };
+                    highlightJewel(row, col, true);
+                    playSound(swapSound);
+                }
+                
+                selectedJewel = null;
+            }
+        }
+        
+        function areAdjacent(row1, col1, row2, col2) {
+            const rowDiff = Math.abs(row1 - row2);
+            const colDiff = Math.abs(col1 - col2);
+            return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+        }
+        
+        function swapJewels(row1, col1, row2, col2) {
+            const temp = gameBoard[row1][col1];
+            gameBoard[row1][col1] = gameBoard[row2][col2];
+            gameBoard[row2][col2] = temp;
+            renderBoard();
+        }
+        
+        function highlightJewel(row, col, highlight) {
+            const jewel = document.querySelector(`.jewel[data-row="${row}"][data-col="${col}"]`);
+            if (jewel) {
+                jewel.classList.toggle('selected', highlight);
+            }
+        }
+        
+        // ===============================
+        // MATCHING SYSTEM
+        // ===============================
+        function findMatches() {
+            const matches = [];
+            const matchedSet = new Set();
+            
+            // Horizontal matches
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE - 2; col++) {
+                    const jewelType = gameBoard[row][col];
+                    if (jewelType === -1) continue;
+                    
+                    if (jewelType === gameBoard[row][col + 1] && jewelType === gameBoard[row][col + 2]) {
+                        let matchLength = 3;
+                        while (col + matchLength < BOARD_SIZE && gameBoard[row][col + matchLength] === jewelType) {
+                            matchLength++;
+                        }
+                        
+                        for (let i = 0; i < matchLength; i++) {
+                            const key = `${row},${col + i}`;
+                            if (!matchedSet.has(key)) {
+                                matchedSet.add(key);
+                                matches.push({ row, col: col + i });
+                            }
+                        }
+                        
+                        col += matchLength - 1;
+                    }
+                }
+            }
+            
+            // Vertical matches
+            for (let col = 0; col < BOARD_SIZE; col++) {
+                for (let row = 0; row < BOARD_SIZE - 2; row++) {
+                    const jewelType = gameBoard[row][col];
+                    if (jewelType === -1) continue;
+                    
+                    if (jewelType === gameBoard[row + 1][col] && jewelType === gameBoard[row + 2][col]) {
+                        let matchLength = 3;
+                        while (row + matchLength < BOARD_SIZE && gameBoard[row + matchLength][col] === jewelType) {
+                            matchLength++;
+                        }
+                        
+                        for (let i = 0; i < matchLength; i++) {
+                            const key = `${row + i},${col}`;
+                            if (!matchedSet.has(key)) {
+                                matchedSet.add(key);
+                                matches.push({ row: row + i, col });
+                            }
+                        }
+                        
+                        row += matchLength - 1;
+                    }
+                }
+            }
+            
+            return matches;
+        }
+        
+        function processMatches(matches) {
+            if (matches.length === 0) return;
+            
+            isProcessing = true;
+            const now = Date.now();
+            
+            // Update streak
+            if (now - lastMatchTime < 2000) {
+                streak++;
+            } else {
+                streak = 1;
+            }
+            lastMatchTime = now;
+            
+            // Update combo
+            const matchSize = matches.length;
+            combo = Math.min(combo + (matchSize / 10), MAX_COMBO);
+            
+            // Show combo display
+            showComboDisplay();
+            
+            // Calculate score
+            const baseScore = matchSize * 100;
+            const comboBonus = Math.floor(baseScore * (combo - 1));
+            const streakBonus = Math.floor(baseScore * (streak / 10));
+            const matchScore = baseScore + comboBonus + streakBonus;
+            
+            score += matchScore;
+            destroyedCount += matchSize;
+            
+            updateUI();
+            playSound(matchSound);
+            
+            // Explode animation
+            matches.forEach(match => {
+                const jewel = document.querySelector(`.jewel[data-row="${match.row}"][data-col="${match.col}"]`);
+                if (jewel) {
+                    jewel.classList.add('exploding');
+                    createParticles(match.row, match.col, jewelTypes[gameBoard[match.row][match.col]].color);
+                }
+            });
+            
+            // Process after animation
+            setTimeout(() => {
+                // Remove matched jewels
+                matches.forEach(match => {
+                    gameBoard[match.row][match.col] = -1;
+                });
+                
+                // Drop jewels and fill
+                dropJewels();
+                fillEmptySpaces();
+                renderBoard();
+                
+                // Check for chain reactions
+                const newMatches = findMatches();
+                if (newMatches.length > 0) {
+                    setTimeout(() => processMatches(newMatches), 500);
+                } else {
+                    isProcessing = false;
+                    
+                    // Check level completion
+                    if (score >= targetScore) {
+                        setTimeout(levelUp, 800);
+                    }
+                }
+            }, 600);
+        }
+        
+        function dropJewels() {
+            for (let col = 0; col < BOARD_SIZE; col++) {
+                let emptyRows = 0;
+                for (let row = BOARD_SIZE - 1; row >= 0; row--) {
+                    if (gameBoard[row][col] === -1) {
+                        emptyRows++;
+                    } else if (emptyRows > 0) {
+                        gameBoard[row + emptyRows][col] = gameBoard[row][col];
+                        gameBoard[row][col] = -1;
+                    }
+                }
+            }
+        }
+function fillEmptySpaces() {
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    if (gameBoard[row][col] === -1) {
+                        gameBoard[row][col] = getRandomJewelType();
+                    }
+                }
+            }
+        }
+        
+        // ===============================
+        // LEVEL SYSTEM
+        // ===============================
+        function levelUp() {
+            level++;
+            targetScore = BASE_TARGET_SCORE * level;
+            combo = 1;
+            streak = 0;
+            
+            // Show notification
+            const notification = document.getElementById('levelUpNotification');
+            const levelText = document.getElementById('levelUpText');
+            levelText.textContent = `Level ${level} Unlocked! Jenis Jewel: ${jewelTypes.length}`;
+            
+            notification.classList.add('show');
+            playSound(levelUpSound);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                
+                generateJewelTypesForLevel();
+                createBoard();
+                renderBoard();
+                updateJewelPreview();
+                updateUI();
+                
+                isProcessing = false;
+            }, 2500);
+        }
+        
+        // ===============================
+        // UTILITIES
+        // ===============================
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+            
+            return "#" + (
+                0x1000000 + 
+                (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + 
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + 
+                (B < 255 ? B < 1 ? 0 : B : 255)
+            ).toString(16).slice(1);
+        }
+        
+        function showComboDisplay() {
+            const display = document.getElementById('comboDisplay');
+            display.textContent = `COMBO x${combo.toFixed(1)}`;
+            display.classList.add('show');
+setTimeout(() => {
+                display.classList.remove('show');
+            }, 1500);
+        }
+        
+        function createParticles(row, col, color) {
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.background = color;
+                    particle.style.left = `${col * 75 + 40}px`;
+                    particle.style.top = `${row * 75 + 40}px`;
+                    
+                    document.querySelector('.game-board-container').appendChild(particle);
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = 2 + Math.random() * 3;
+                    const vx = Math.cos(angle) * velocity;
+                    const vy = Math.sin(angle) * velocity;
+                    
+                    let x = 0, y = 0;
+                    const animate = () => {
+                        x += vx;
+                        y += vy;
+                        particle.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
+                        particle.style.opacity = 1 - (Math.abs(x) + Math.abs(y)) / 50;
+                        
+                        if (Math.abs(x) + Math.abs(y) < 50) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            particle.remove();
+                        }
+                    };
+                    
+                    animate();
+                }, i * 50);
+            }
+        }
+        
+        // ===============================
+        // GAME CONTROLS
+        // ===============================
+        function showHint() {
+            if (isProcessing || hintCount <= 0) return;
+            
+            const hint = findHint();
+            if (hint) {
+                hintCount--;
+                updateUI();
+                
+                highlightJewel(hint.row1, hint.col1, true);
+                highlightJewel(hint.row2, hint.col2, true);
+                
+                playSound(hintSound);
+                
+                setTimeout(() => {
+                    highlightJewel(hint.row1, hint.col1, false);
+                    highlightJewel(hint.row2, hint.col2, false);
+                }, 1500);
+            }
+        }
+        
+        function findHint() {
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    // Check right swap
+                    if (col < BOARD_SIZE - 1) {
+                        swapJewels(row, col, row, col + 1);
+                        if (findMatches().length > 0) {
+                            swapJewels(row, col, row, col + 1);
+                            return { row1: row, col1: col, row2: row, col2: col + 1 };
+                        }
+                        swapJewels(row, col, row, col + 1);
+                    }
+                    
+                    // Check down swap
+                    if (row < BOARD_SIZE - 1) {
+                        swapJewels(row, col, row + 1, col);
+                        if (findMatches().length > 0) {
+                            swapJewels(row, col, row + 1, col);
+                            return { row1: row, col1: col, row2: row + 1, col2: col };
+                        }
+                        swapJewels(row, col, row + 1, col);
+                    }
+                }
+            }
+            return null;
+        }
+        
+        function shuffleBoard() {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            playSound(shuffleSound);
+            
+            // Simple Fisher-Yates shuffle
+            const flatBoard = gameBoard.flat();
+            for (let i = flatBoard.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flatBoard[i], flatBoard[j]] = [flatBoard[j], flatBoard[i]];
+            }
+            
+            // Reconstruct board
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                gameBoard[i] = flatBoard.slice(i * BOARD_SIZE, (i + 1) * BOARD_SIZE);
+            }
+                 // Ensure no initial matches
+            while (findMatches().length > 0) {
+                for (let match of findMatches()) {
+                    gameBoard[match.row][match.col] = getRandomJewelType();
+                }
+            }
+            
+            renderBoard();
+            isProcessing = false;
+        }
+        
+        function skipLevel() {
+            if (isProcessing) return;
+            score = targetScore;
+            levelUp();
+        }
+        
+        function toggleSound() {
+            soundsEnabled = !soundsEnabled;
+            const icon = document.querySelector('#soundControl i');
+            icon.className = soundsEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+            
+            if (soundsEnabled) {
+                playSound(swapSound);
+            }
+        }
+        
+        // ===============================
+        // AUDIO SYSTEM (OFFLINE COMPATIBLE)
+        // ===============================
+        function playSound(audioElement) {
+            if (!soundsEnabled) return;
+            
+            try {
+                // Fallback menggunakan Web Audio API untuk suara sederhana
+                if (audioElement.src.includes('base64')) {
+                    createBeepSound(audioElement.id);
+                } else {
+                    audioElement.currentTime = 0;
+                    const playPromise = audioElement.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(() => {
+                            createBeepSound(audioElement.id);
+                        });
+                    }
+                }
+            } catch (e) {
+                createBeepSound(audioElement.id);
+            }
+        }
+        
+        function createBeepSound(type) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                let frequency = 800;
+                let duration = 0.1;
+                
+                switch(type) {
+                    case 'swapSound':
+                        frequency = 600; duration = 0.1;
+                        break;
+                    case 'matchSound':
+                        frequency = 1200; duration = 0.3;
+                        break;
+                    case 'levelUpSound':
+                        // Play multiple tones
+                        [800, 1000, 1200].forEach((freq, i) => {
+                            setTimeout(() => {
+                                const osc = audioContext.createOscillator();
+                                const gain = audioContext.createGain();
+                                osc.connect(gain);
+                                gain.connect(audioContext.destination);
+                                osc.frequency.value = freq;
+                                gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                                osc.start();
+                                osc.stop(audioContext.currentTime + 0.2);
+                            }, i * 150);
+                        });
+                        return;
+                    case 'hintSound':
+                        frequency = 400; duration = 0.5;
+                        break;
+                    case 'shuffleSound':
+                        frequency = 300; duration = 0.8;
+                        break;
+                }
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + duration);
+                
+                setTimeout(() => audioContext.close(), duration * 1000 + 100);
+            } catch (e) {
+                console.log("Audio fallback tidak tersedia");
+            }
+        }
+   // ===============================
+        // EVENT LISTENERS & INIT
+        // ===============================
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const gameBoardElement = document.getElementById('gameBoard');
+            const levelUpNotification = document.getElementById('levelUpNotification');
+            
+            // Event Listeners
+            document.getElementById('hintBtn').addEventListener('click', showHint);
+            document.getElementById('shuffleBtn').addEventListener('click', shuffleBoard);
+            document.getElementById('newGameBtn').addEventListener('click', initGame);
+            document.getElementById('nextLevelBtn').addEventListener('click', skipLevel);
+            document.getElementById('soundControl').addEventListener('click', toggleSound);
+            
+            // Touch/mobile support
+            document.addEventListener('touchstart', (e) => {
+                if (e.target.classList.contains('jewel')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // Initialize game
+            initGame();
+            
+            // Add offline capability message
+            console.log('🎮 Jewels Infinity siap dimainkan OFFLINE!');
+            console.log('💾 Simpan halaman ini untuk akses offline kapan saja.');
+        });
+        
+        // Service Worker registration untuk PWA (opsional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {
+                    // Fallback jika service worker tidak tersedia
+                });
+            });
+        }
+    </script>
+    
+    <!-- Font Awesome Icons (embedded for offline) -->
+    <script>
+        // Fallback untuk FontAwesome jika tidak tersedia
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const icons = document.querySelectorAll('i.fas, i.fa');
+                icons.forEach(function(icon) {
+                    if (getComputedStyle(icon).fontFamily.indexOf('FontAwesome') === -1) {
+                        const className = icon.className;
+                        let fallback = '';
+                        
+                        if (className.includes('fa-gem')) fallback = '◆';
+                        else if (className.includes('fa-star')) fallback = '★';
+                        else if (className.includes('fa-heart')) fallback = '♥';
+                        else if (className.includes('fa-circle')) fallback = '●';
+                        else if (className.includes('fa-square')) fallback = '■';
+                        else if (className.includes('fa-diamond')) fallback = '♦';
+                        else if (className.includes('fa-certificate')) fallback = '✪';
+                        else if (className.includes('fa-bolt')) fallback = '⚡';
+                        else if (className.includes('fa-lightbulb')) fallback = '💡';
+                        else if (className.includes('fa-redo')) fallback = '🔄';
+                        else if (className.includes('fa-rocket')) fallback = '🚀';
+                        else if (className.includes('fa-random')) fallback = '🔀';
+                        else if (className.includes('fa-info-circle')) fallback = 'ⓘ';
+                        else if (className.includes('fa-volume-up') || className.includes('fa-volume-mute')) fallback = '🔊';
+                        else if (className.includes('fa-chart-line')) fallback = '📈';
+                        else if (className.includes('fa-bomb')) fallback = '💣';
+                        else if (className.includes('fa-fire')) fallback = '🔥';
+                        else if (className.includes('fa-wifi-slash')) fallback = '📴';
+                        else if (className.includes('fa-moon')) fallback = '🌙';
+                        else if (className.includes('fa-sun')) fallback = '☀';
+                        else if (className.includes('fa-cloud')) fallback = '☁';
+                        else if (className.includes('fa-snowflake')) fallback = '❄';
+                        
+                        if (fallback) {
+                            icon.textContent = fallback;
+                            icon.style.fontFamily = 'Arial, sans-serif';
+                            icon.style.fontStyle = 'normal';
+                        }
+                    }
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
