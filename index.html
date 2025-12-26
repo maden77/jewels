@@ -348,7 +348,7 @@
             <div class="info-card">
                 <h2>Score</h2>
                 <div class="info-value" id="score">0</div>
-                <p>Target: <span id="targetScore">1000</span></p>
+                <p>Target: <span id="targetScore">10000</span></p>
             </div>
             
             <div class="info-card">
@@ -417,7 +417,7 @@
         let score = 0;
         let level = 1;
         let destroyedCount = 0;
-        let targetScore = 10;
+        let targetScore = 10000;
         let combo = 1;
         let jewelTypes = [];
         let soundsEnabled = true;
@@ -425,7 +425,7 @@
         
         // Game constants
         const BOARD_SIZE = 8;
-        const BASE_TARGET_SCORE = 1000;
+        const BASE_TARGET_SCORE = 10000;
         const JEWEL_SHAPES = ['fas fa-gem', 'fas fa-star', 'fas fa-heart', 'fas fa-circle', 'fas fa-square', 'fas fa-diamond', 'fas fa-certificate', 'fas fa-bolt'];
         const JEWEL_COLORS = ['#f87171', '#60a5fa', '#34d399', '#fbbf24', '#c084fc', '#fb923c', '#38bdf8', '#a78bfa'];
         
@@ -669,7 +669,7 @@
             isProcessing = true;
             
             // Calculate score for this match
-            const matchScore = matches.length * 100 * combo;
+            const matchScore = matches.length * 10 * combo;
             score += matchScore;
             destroyedCount += matches.length;
             
